@@ -6,20 +6,20 @@ import ConfigParser
 import json
 import argparse
 
-from whatapi import WhatAPI
+from xanaxapi import XanaxAPI
 
 
 def main():
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, prog='whatbetter')
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, prog='xanaxbetter')
     parser.add_argument('-s', '--snatches', type=int, help='minimum amount of snatches required before transcoding',
                         default=5)
     parser.add_argument('-b', '--better', type=int, help='better transcode search type',
                         default=3)
     parser.add_argument('-c', '--count', type=int, help='backlog max size', default=5)
     parser.add_argument('--config', help='the location of the configuration file',
-                        default=os.path.expanduser('~/.whatbetter/config'))
+                        default=os.path.expanduser('~/.xanaxbetter/config'))
     parser.add_argument('--cache', help='the location of the cache',
-                        default=os.path.expanduser('~/.whatbetter/cache-crawl'))
+                        default=os.path.expanduser('~/.xanaxbetter/cache-crawl'))
 
     args = parser.parse_args()
 
@@ -28,15 +28,15 @@ def main():
         open(args.config)
         config.read(args.config)
     except:
-        print "please run whatbetter once"
+        print "please run xanaxbetter once"
         sys.exit(2)
 
-    username = config.get('whatcd', 'username')
-    password = config.get('whatcd', 'password')
-    torrent_dir = os.path.expanduser(config.get('whatcd', 'torrent_dir'))
+    username = config.get('xanax', 'username')
+    password = config.get('xanax', 'password')
+    torrent_dir = os.path.expanduser(config.get('xanax', 'torrent_dir'))
 
-    print 'Logging in to What.CD...'
-    api = WhatAPI(username, password)
+    print 'Logging in to Xanax.Rip...'
+    api = XanaxAPI(username, password)
 
     try:
         cache = json.load(open(args.cache))

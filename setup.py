@@ -16,8 +16,8 @@ else:
     raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
 setup(
-    name = "whatbetter",
-    description = "Automatically transcode and upload FLACs on What.CD.",
+    name = "xanaxbetter",
+    description = "Automatically transcode and upload FLACs on Xanax.Rip.",
     author = 'Zach Denton',
     author_email = 'zacharydenton@gmail.com',
     version = verstr,
@@ -26,9 +26,9 @@ setup(
         '_version',
         'tagging',
         'transcode',
-        'whatapi'
+        'xanaxapi'
     ],
-    scripts = ['whatbetter'],
+    scripts = ['xanaxbetter'],
     install_requires = [
         'mutagen',
         'mechanize',
