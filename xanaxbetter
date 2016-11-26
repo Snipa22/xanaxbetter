@@ -116,7 +116,7 @@ def main():
     upload_torrent = not args.no_upload
 
     print 'Logging in to Xanax.Rip...'
-    api = xanaxapi.xanaxapi(username, password)
+    api = xanaxapi.XanaxAPI(username, password)
 
     try:
         seen = pickle.load(open(args.cache))
