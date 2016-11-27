@@ -229,7 +229,7 @@ def transcode(flac_file, output_dir, output_format):
 def get_transcode_dir(flac_dir, output_dir, output_format, resample):
     transcode_dir = os.path.basename(flac_dir)
 
-    if 'FLAC' in flac_dir.upper():
+    if 'FLAC' in transcode_dir.upper():
         transcode_dir = re.sub(re.compile('FLAC', re.I), output_format, transcode_dir)
     else:
         transcode_dir = transcode_dir + " (" + output_format + ")"
