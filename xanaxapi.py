@@ -8,6 +8,8 @@ import mechanize
 import HTMLParser
 from cStringIO import StringIO
 
+from _constants import __site_url__
+
 headers = {
     'Connection': 'keep-alive',
     'Cache-Control': 'max-age=0',
@@ -76,14 +78,14 @@ class XanaxAPI:
         self.authkey = None
         self.passkey = None
         self.userid = None
-        self.tracker = "http://xanax.rip:2095/"
+        self.tracker = __site_url__ + ":2095/"
         self.last_request = time.time()
         self.rate_limit = 2.0 # seconds between requests
         self._login()
 
     def _login(self):
         '''Logs in user and gets authkey from server'''
-        loginpage = 'https://xanax.rip/login.php'
+        loginpage = __site_url__ + '/login.php'
         data = {'username': self.username,
                 'password': self.password}
         r = self.session.post(loginpage, data=data)
@@ -95,14 +97,14 @@ class XanaxAPI:
         self.userid = accountinfo['id']
 
     def logout(self):
-        self.session.get("https://xanax.rip/logout.php?auth=%s" % self.authkey)
+        self.session.get("%s/logout.php?auth=%s" % (__site_url__, self.authkey))
 
     def request(self, action, **kwargs):
         '''Makes an AJAX request at a given action page'''
         while time.time() - self.last_request < self.rate_limit:
             time.sleep(0.1)
 
-        ajaxpage = 'https://xanax.rip/ajax.php'
+        ajaxpage = __site_url__ + '/ajax.php'
         params = {'action': action}
         if self.authkey:
             params['auth'] = self.authkey
@@ -121,7 +123,7 @@ class XanaxAPI:
         while time.time() - self.last_request < self.rate_limit:
             time.sleep(0.1)
 
-        ajaxpage = 'https://xanax.rip/' + action
+        ajaxpage = __site_url__ + '/' + action
         if self.authkey:
             kwargs['auth'] = self.authkey
         r = self.session.get(ajaxpage, params=kwargs, allow_redirects=False)
@@ -164,7 +166,7 @@ class XanaxAPI:
         else:
             media_params = ['&media=%s' % media_search_map[m] for m in media]
 
-        url = 'https://xanax.rip/torrents.php?type=snatched&userid=%s&format=FLAC' % self.userid
+        url = __site_url__ + '/torrents.php?type=snatched&userid=%s&format=FLAC' % self.userid
         for mp in media_params:
             page = 1
             done = False
@@ -178,7 +180,7 @@ class XanaxAPI:
                 page += 1
 
     def upload(self, group, torrent, new_torrent, format, description=[]):
-        url = "https://xanax.rip/upload.php?groupid=%s" % group['group']['id']
+        url = __site_url__ + "/upload.php?groupid=%s" % group['group']['id']
         response = self.session.get(url)
         forms = mechanize.ParseFile(StringIO(response.text.encode('utf-8')), url)
         form = forms[-1]
@@ -202,7 +204,7 @@ class XanaxAPI:
         return self.session.post(url, data=data, headers=dict(headers))
 
     def set_24bit(self, torrent):
-        url = "https://xanax.rip/torrents.php?action=edit&id=%s" % torrent['id']
+        url = "%s/torrents.php?action=edit&id=%s" % (__site_url__, torrent['id'])
         response = self.session.get(url)
         forms = mechanize.ParseFile(StringIO(response.text.encode('utf-8')), url)
         form = forms[-3]
@@ -211,10 +213,10 @@ class XanaxAPI:
         return self.session.post(url, data=data, headers=dict(headers))
 
     def release_url(self, group, torrent):
-        return "https://xanax.rip/torrents.php?id=%s&torrentid=%s#torrent%s" % (group['group']['id'], torrent['id'], torrent['id'])
+        return "%s/torrents.php?id=%s&torrentid=%s#torrent%s" % (__site_url__, group['group']['id'], torrent['id'], torrent['id'])
 
     def permalink(self, torrent):
-        return "https://xanax.rip/torrents.php?torrentid=%s" % torrent['id']
+        return "%s/torrents.php?torrentid=%s" % (__site_url__, torrent['id'])
 
     def get_better(self, type=3):
         p = re.compile(ur'(torrents\.php\?action=download&(?:amp;)?id=(\d+)[^"]*).*(torrents\.php\?id=\d+(?:&amp;|&)torrentid=\2\#torrent\d+)', re.DOTALL)
@@ -233,7 +235,7 @@ class XanaxAPI:
         while time.time() - self.last_request < self.rate_limit:
             time.sleep(0.1)
 
-        torrentpage = 'https://ssl.xanax.rip/torrents.php'
+        torrentpage = __site_url__ + '/torrents.php'
         params = {'action': 'download', 'id': torrent_id}
         if self.authkey:
             params['authkey'] = self.authkey
