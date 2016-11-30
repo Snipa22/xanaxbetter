@@ -7,6 +7,8 @@ import argparse
 import ConfigParser
 import sys
 
+from _constants import __site_url__
+
 lockfile = os.path.expanduser('~/.xanaxbetter/parse.lock')
 
 
@@ -35,7 +37,7 @@ def parse_stuff(cache_file):
     cache_new = []
     for torrent in cache:
         if torrent['done']:
-            permalinks.append('"https://xanax.rip/%s"' % torrent['permalink'])
+            permalinks.append('"%s/%s"' % (__site_url__, torrent['permalink']))
         else:
             cache_new.append(torrent)
 

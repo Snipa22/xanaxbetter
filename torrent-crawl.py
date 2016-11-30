@@ -8,6 +8,8 @@ import argparse
 
 from xanaxapi import XanaxAPI
 
+from _constants import __site_url__
+
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, prog='xanaxbetter')
@@ -35,7 +37,7 @@ def main():
     password = config.get('xanax', 'password')
     torrent_dir = os.path.expanduser(config.get('xanax', 'torrent_dir'))
 
-    print 'Logging in to Xanax.Rip...'
+    print 'Logging in to %s...' % __site_url__
     api = XanaxAPI(username, password)
 
     try:

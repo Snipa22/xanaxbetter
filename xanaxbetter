@@ -12,8 +12,7 @@ from multiprocessing import cpu_count
 import tagging
 import transcode
 import xanaxapi
-from _version import __version__
-
+from _constants import __site_url__, __version__
 
 def banner():
     return 'Created with version of xanaxbetter-crawler 1.4. Maintained by Mechazawa & Rguedes\n' \
@@ -115,7 +114,7 @@ def main():
 
     upload_torrent = not args.no_upload
 
-    print 'Logging in to Xanax.Rip...'
+    print 'Logging in to %s...' % __site_url__
     api = xanaxapi.XanaxAPI(username, password)
 
     try:

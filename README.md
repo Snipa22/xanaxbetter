@@ -2,11 +2,11 @@ Introduction
 ------------
 
 xanaxbetter is a script which automatically transcodes and uploads these
-files to Xanax.Rip.
+files to Apollo.Rip.
 
 The following command will scan through every FLAC you have ever
 downloaded (if it is in , determine which formats are needed, transcode the FLAC to
-each needed format, and upload each format to Xanax.Rip -- automatically.
+each needed format, and upload each format to Apollo.Rip -- automatically.
 
     $ xanaxbetter
 
@@ -73,7 +73,7 @@ like this:
     media = sacd, soundboard, web, dvd, cd, dat, vinyl, blu-ray
     24bit_behaviour = 0
 
-`username` and `password` are your Xanax.Rip login credentials. 
+`username` and `password` are your Apollo.Rip login credentials. 
 `data_dir` is the directory where your downloads are stored. 
 `output_dir` is the directory where your transcodes will be created. If
 the value is blank, `data_dir` will be used.
@@ -82,7 +82,7 @@ your watch directory). `formats` is a list of formats that you'd like to
 support (so if you don't want to upload V2, just remove it from this
 list).
 `media` is a list of lossless media types you want to consider for
-transcoding. The default value is all Xanax.Rip lossless formats, but if
+transcoding. The default value is all Apollo.Rip lossless formats, but if
 you want to transcode only CD and vinyl media, for example, you would
 set this to 'cd, vinyl'.
 `24bit_behaviour` defines what happens when the program encounters a FLAC 
@@ -132,7 +132,7 @@ take a while):
 To transcode and upload a specific release (provided you have already
 downloaded the FLAC and it is located in your `data_dir`):
 
-    $ xanaxbetter http://Xanax.Rip/torrents.php?id=1000\&torrentid=1000000
+    $ xanaxbetters http://apollo.rip/torrents.php?id=1000\&torrentid=1000000
 
 Note that if you specify a particular release(s), xanaxbetter will
 ignore your configuration's media types and attempt to transcode the
