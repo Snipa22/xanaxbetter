@@ -14,7 +14,7 @@ setup(
     version = __version__,
     url = 'http://github.com/zacharydenton/whatbetter',
     py_modules = [
-        '_version',
+        '_constants',
         'tagging',
         'transcode',
         'xanaxapi'
