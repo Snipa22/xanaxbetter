@@ -12,6 +12,7 @@ from multiprocessing import cpu_count
 import tagging
 import transcode
 import xanaxapi
+import mutagen
 from _constants import __site_url__, __version__
 
 def banner():
@@ -178,8 +179,12 @@ def main():
                 print "Error: can't edit 24-bit torrent - skipping: %s" % e
                 continue
 
-        if transcode.is_multichannel(flac_dir):
-            print "This is a multichannel release, which is unsupported - skipping"
+        try:
+            if transcode.is_multichannel(flac_dir):
+                print "This is a multichannel release, which is unsupported - skipping"
+                continue
+        except mutagen.flac.error:
+            print "Invalid FLAC file - Skipping"
             continue
 
         needed = formats_needed(group, torrent, supported_formats)
