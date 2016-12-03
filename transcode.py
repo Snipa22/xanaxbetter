@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+from builtins import zip
 import errno
 import multiprocessing
 import os
@@ -153,11 +155,12 @@ def transcode_commands(output_format, resample, needed_sample_rate, flac_file, t
     if output_format == 'FLAC' and resample:
         commands = ['sox %(FLAC)s -G -b 16 %(FILE)s rate -v -L %(SAMPLERATE)s dither' % transcode_args]
     else:
-        commands = map(lambda cmd: cmd % transcode_args, transcoding_steps)
+        commands = [cmd % transcode_args for cmd in transcoding_steps]
     return commands
 
 # Pool.map() can't pickle lambdas, so we need a helper function.
-def pool_transcode((flac_file, output_dir, output_format)):
+def pool_transcode(xxx_todo_changeme):
+    (flac_file, output_dir, output_format) = xxx_todo_changeme
     return transcode(flac_file, output_dir, output_format)
 
 def transcode(flac_file, output_dir, output_format):
@@ -262,7 +265,7 @@ def transcode_release(flac_dir, output_dir, output_format, max_threads=None):
         # XXX: if output_dir is not the same as flac_dir, this may not
         # do what the user expects.
         if output_dir != os.path.dirname(flac_dir):
-            print "Warning: no encode necessary, so files won't be placed in", output_dir
+            print("Warning: no encode necessary, so files won't be placed in", output_dir)
         return flac_dir
 
     # make a new directory for the transcoded files
@@ -351,7 +354,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('input_dir')
     parser.add_argument('output_dir')
-    parser.add_argument('output_format', choices=encoders.keys())
+    parser.add_argument('output_format', choices=list(encoders.keys()))
     parser.add_argument('-j', '--threads', default=multiprocessing.cpu_count(), type=int)
     args = parser.parse_args()
 

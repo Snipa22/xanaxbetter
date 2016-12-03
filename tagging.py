@@ -25,6 +25,7 @@
 """Simple tagging for xanaxbetter.
 """
 
+from builtins import filter
 import os.path
 import re
 import mutagen
@@ -83,7 +84,7 @@ def check_tags(filename, check_tracknumber_format=True):
     """
     info = mutagen.File(filename, easy=True)
     for tag in ['artist', 'album', 'title', 'tracknumber']:
-        if tag not in info.keys():
+        if tag not in list(info.keys()):
             return (False, '"%s" has no %s tag' % (filename, tag))
         elif info[tag] == [u'']:
             return (False, '"%s" has an empty %s tag' % (filename, tag))
@@ -107,14 +108,14 @@ def copy_tags(flac_file, transcode_file):
 
     elif transcode_ext == '.mp3':
         transcode_info = mutagen.mp3.EasyMP3(transcode_file)
-        valid_key_fn = lambda k: k in EasyID3.valid_keys.keys()
+        valid_key_fn = lambda k: k in list(EasyID3.valid_keys.keys())
 
     else:
         raise TaggingException('Unsupported tag format "%s"' % transcode_file)
 
     for tag in filter(valid_key_fn, flac_info):
         # scrub the FLAC tags, just to be on the safe side.
-        values = map(lambda v: scrub_tag(tag,v), flac_info[tag])
+        values = [scrub_tag(tag,v) for v in flac_info[tag]]
         if values and values != [u'']:
             transcode_info[tag] = values
 
@@ -129,21 +130,21 @@ def copy_tags(flac_file, transcode_file):
         # as 'tracktotal' and 'disctotal'. We support either tag, but
         # in files with both we choose only one.
 
-        if 'tracknumber' in transcode_info.keys():
+        if 'tracknumber' in list(transcode_info.keys()):
             totaltracks = None
-            if 'totaltracks' in flac_info.keys():
+            if 'totaltracks' in list(flac_info.keys()):
                 totaltracks = scrub_tag('totaltracks', flac_info['totaltracks'][0])
-            elif 'tracktotal' in flac_info.keys():
+            elif 'tracktotal' in list(flac_info.keys()):
                 totaltracks = scrub_tag('tracktotal', flac_info['tracktotal'][0])
 
             if totaltracks:
                 transcode_info['tracknumber'] = [u'%s/%s' % (transcode_info['tracknumber'][0], totaltracks)]
 
-        if 'discnumber' in transcode_info.keys():
+        if 'discnumber' in list(transcode_info.keys()):
             totaldiscs = None
-            if 'totaldiscs' in flac_info.keys():
+            if 'totaldiscs' in list(flac_info.keys()):
                 totaldiscs = scrub_tag('totaldiscs', flac_info['totaldiscs'][0])
-            elif 'disctotal' in flac_info.keys():
+            elif 'disctotal' in list(flac_info.keys()):
                 totaldiscs = scrub_tag('disctotal', flac_info['disctotal'][0])
 
             if totaldiscs:
@@ -158,7 +159,7 @@ for key, frameid in {
     'album artist': 'TPE2',
     'grouping': 'TIT1',
     'content group': 'TIT1',
-    }.iteritems():
+    }.items():
     EasyID3.RegisterTextKey(key, frameid)
 
 def comment_get(id3, _):

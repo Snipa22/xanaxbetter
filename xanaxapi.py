@@ -1,12 +1,16 @@
 #!/usr/bin/env python
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import re
 import os
 import json
 import time
 import requests
 import mechanize
-import HTMLParser
-from cStringIO import StringIO
+import html.parser
+from io import StringIO
 
 from _constants import __site_url__
 
@@ -61,7 +65,7 @@ def allowed_transcodes(torrent):
     if preemphasis:
         return []
     else:
-        return formats.keys()
+        return list(formats.keys())
 
 class LoginException(Exception):
     pass
@@ -69,7 +73,7 @@ class LoginException(Exception):
 class RequestException(Exception):
     pass
 
-class XanaxAPI:
+class XanaxAPI(object):
     def __init__(self, username=None, password=None):
         self.session = requests.Session()
         self.session.headers.update(headers)
@@ -251,4 +255,4 @@ class XanaxAPI:
         return self.request('torrent', id=id)['torrent']
 
 def unescape(text):
-    return HTMLParser.HTMLParser().unescape(text)
+    return html.parser.HTMLParser().unescape(text)

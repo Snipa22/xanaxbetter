@@ -1,10 +1,13 @@
 #!/usr/bin/env python2.7
 # make me a conjob!
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
 import os
 import json
 import argparse
-import ConfigParser
+import configparser
 import sys
 
 from _constants import __site_url__
@@ -14,7 +17,7 @@ lockfile = os.path.expanduser('~/.xanaxbetter/parse.lock')
 
 def main():
     if os.path.exists(lockfile):
-        print "Found lockfile, exiting...."
+        print("Found lockfile, exiting....")
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, prog='xanaxbetter')
     parser.add_argument('--cache', help='the location of the cache',
@@ -22,7 +25,7 @@ def main():
 
     args = parser.parse_args()
     while parse_stuff(args.cache) and not os.path.exists(lockfile):
-        print "Done encoding cycle"
+        print("Done encoding cycle")
 
 
 def parse_stuff(cache_file):
@@ -46,7 +49,7 @@ def parse_stuff(cache_file):
 
     cmdline = "python2 xanaxbetter.py %s" % ' '.join(permalinks)
     json.dump(cache_new, open(cache_file, 'wb'))
-    print "Executing... " + cmdline
+    print("Executing... " + cmdline)
     os.system(cmdline)
     os.remove(lockfile)
     return True

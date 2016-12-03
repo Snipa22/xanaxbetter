@@ -1,12 +1,18 @@
 #!/usr/bin/env python
-import ConfigParser
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import filter
+from builtins import str
+from builtins import input
+import configparser
 import argparse
-import cPickle as pickle
+import pickle as pickle
 import os
 import shutil
 import sys
 import tempfile
-import urlparse
+import urllib.parse
 from multiprocessing import cpu_count
 
 import tagging
@@ -44,7 +50,7 @@ def formats_needed(group, torrent, supported_formats):
                            t['remasterRecordLabel'] == torrent['remasterRecordLabel'] and\
                            t['remasterCatalogueNumber'] == torrent['remasterCatalogueNumber']
 
-    others = filter(same_group, group['torrents'])
+    others = list(filter(same_group, group['torrents']))
     current_formats = set((t['format'], t['encoding']) for t in others)
     missing_formats = [format for format, details in [(f, xanaxapi.formats[f]) for f in supported_formats]\
                            if (details['format'], details['encoding']) not in current_formats]
@@ -67,7 +73,7 @@ def main():
 
     args = parser.parse_args()
 
-    config = ConfigParser.SafeConfigParser()
+    config = configparser.SafeConfigParser()
     try:
         open(args.config)
         config.read(args.config)
@@ -84,7 +90,7 @@ def main():
         config.set('xanax', 'media', ', '.join(xanaxapi.lossless_media))
         config.set('xanax', '24bit_behaviour','0')
         config.write(open(args.config, 'w'))
-        print 'Please edit the configuration file: %s' % args.config
+        print('Please edit the configuration file: %s' % args.config)
         sys.exit(2)
     finally:
         username = config.get('xanax', 'username')
@@ -93,7 +99,7 @@ def main():
         data_dir = os.path.expanduser(config.get('xanax', 'data_dir'))
         try:
             output_dir = os.path.expanduser(config.get('xanax', 'output_dir'))
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             output_dir = None
         if not output_dir:
             output_dir = data_dir
@@ -107,15 +113,15 @@ def main():
             else:
                 supported_media = set([medium.strip().lower() for medium in media_config.split(',')])
                 if not supported_media.issubset(set(xanaxapi.lossless_media)):
-                    print 'Unsupported media type "%s", edit your configuration' % (supported_media - xanaxapi.lossless_media).pop()
-                    print 'Supported types are:', ', '.join(xanaxapi.lossless_media)
+                    print('Unsupported media type "%s", edit your configuration' % (supported_media - xanaxapi.lossless_media).pop())
+                    print('Supported types are:', ', '.join(xanaxapi.lossless_media))
                     sys.exit(2)
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             supported_media = xanaxapi.lossless_media
 
     upload_torrent = not args.no_upload
 
-    print 'Logging in to %s...' % __site_url__
+    print('Logging in to %s...' % __site_url__)
     api = xanaxapi.XanaxAPI(username, password)
 
     try:
@@ -124,11 +130,11 @@ def main():
         seen = set()
         pickle.dump(seen, open(args.cache, 'wb'))
 
-    print 'Searching for transcode candidates...'
+    print('Searching for transcode candidates...')
     if args.release_urls:
-        print 'You supplied one or more release URLs, ignoring your configuration\'s media types.'
+        print('You supplied one or more release URLs, ignoring your configuration\'s media types.')
         candidates = [(int(query['id']), int(query['torrentid'])) for query in\
-                [dict(urlparse.parse_qsl(urlparse.urlparse(url).query)) for url in args.release_urls]]
+                [dict(urllib.parse.parse_qsl(urllib.parse.urlparse(url).query)) for url in args.release_urls]]
     else:
         candidates = api.snatched(skip=seen, media=supported_media)
 
@@ -139,14 +145,14 @@ def main():
         release = "Release found: %s (%s)" % (xanaxapi.unescape(group['group']['name']), group['group']['year'])
         releaseurl = "Release URL: %s" % api.release_url(group, torrent)
         
-        print
-        print release.encode("utf-8")
-        print releaseurl.encode("utf-8")
+        print()
+        print(release.encode("utf-8"))
+        print(releaseurl.encode("utf-8"))
 
         if not torrent['filePath']:
             flac_file = os.path.join(data_dir, xanaxapi.unescape(torrent['fileList']).split('{{{')[0])
             if not os.path.exists(flac_file):
-                print "Path not found - skipping: %s" % flac_file
+                print("Path not found - skipping: %s" % flac_file)
                 continue
             flac_dir = os.path.join(data_dir, "%s (%s) [FLAC]" % (
             xanaxapi.unescape(group['group']['name']), group['group']['year']))
@@ -165,30 +171,30 @@ def main():
                     # sure whether the files are 24 bit, we might as well correct the listing
                     # on the site (and get an extra upload in the process).
                     if args.no_24bit_edit:
-                        print "Release is actually 24-bit lossless, skipping."
+                        print("Release is actually 24-bit lossless, skipping.")
                         continue
                     if int(do_24_bit) == 1:  
-                        confirmation = raw_input("Mark release as 24bit lossless? y/n: ")
+                        confirmation = input("Mark release as 24bit lossless? y/n: ")
                         if confirmation != 'y':
                             continue
-                    print "Marking release as 24bit lossless."
+                    print("Marking release as 24bit lossless.")
                   #  api.set_24bit(torrent)
                     group = api.request('torrentgroup', id=groupid)
                     torrent = [t for t in group['torrents'] if t['id'] == torrentid][0]
             except Exception as e:
-                print "Error: can't edit 24-bit torrent - skipping: %s" % e
+                print("Error: can't edit 24-bit torrent - skipping: %s" % e)
                 continue
 
         try:
             if transcode.is_multichannel(flac_dir):
-                print "This is a multichannel release, which is unsupported - skipping"
+                print("This is a multichannel release, which is unsupported - skipping")
                 continue
         except mutagen.flac.error:
-            print "Invalid FLAC file - Skipping"
+            print("Invalid FLAC file - Skipping")
             continue
 
         needed = formats_needed(group, torrent, supported_formats)
-        print "Formats needed: %s" % ', '.join(needed)
+        print("Formats needed: %s" % ', '.join(needed))
 
         if needed:
             # Before proceeding, do the basic tag checks on the source
@@ -199,8 +205,8 @@ def main():
             for flac_file in transcode.locate(flac_dir, transcode.ext_matcher('.flac')):
                 (ok, msg) = tagging.check_tags(flac_file, check_tracknumber_format=False)
                 if not ok:
-                    print "A FLAC file in this release has unacceptable tags - skipping: %s" % msg
-                    print "You might be able to trump it."
+                    print("A FLAC file in this release has unacceptable tags - skipping: %s" % msg)
+                    print("You might be able to trump it.")
                     broken_tags = True
                     break
             if broken_tags:
@@ -208,7 +214,7 @@ def main():
 
         for format in needed:
             if os.path.exists(flac_dir):
-                print 'Adding format %s...' % format,
+                print('Adding format %s...' % format, end=' ')
                 tmpdir = tempfile.mkdtemp()
                 try:
                     transcode_dir = transcode.transcode_release(flac_dir, output_dir, format, max_threads=args.threads)
@@ -218,14 +224,14 @@ def main():
                         description = create_description(torrent, flac_dir, format, permalink)
                         api.upload(group, torrent, new_torrent, format, description)
                     shutil.copy(new_torrent, torrent_dir)
-                    print "done!"
+                    print("done!")
                     if args.single: break
                 except Exception as e:
-                    print "Error adding format %s: %s" % (format, e)
+                    print("Error adding format %s: %s" % (format, e))
                 finally:
                     shutil.rmtree(tmpdir)
             else:
-                print "Path not found - skipping: %s" % flac_dir
+                print("Path not found - skipping: %s" % flac_dir)
                 break
 
         seen.add(str(torrentid))
