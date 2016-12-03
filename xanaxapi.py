@@ -8,7 +8,7 @@ import os
 import json
 import time
 import requests
-import mechanize
+import mechanicalsoup
 import html.parser
 from io import StringIO
 

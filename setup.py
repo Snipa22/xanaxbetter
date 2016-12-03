@@ -22,7 +22,7 @@ setup(
     scripts = ['xanaxbetter'],
     install_requires = [
         'mutagen',
-        'mechanize',
+        'MechanicalSoup',
         'requests'
     ]
 )
